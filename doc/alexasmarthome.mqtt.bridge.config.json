@@ -1,0 +1,183 @@
+{
+    "endpointId": "ibnhouse_ac_bedroom",
+    "manufacturerName": "IBN",
+    "friendlyName": "Bedroom A/C",
+    "description": "AC in bedroom",
+    "additionalAttributes":  {
+        "manufacturer" : "IBN",
+        "model" : "Jeannie",
+        "serialNumber": "0001",
+        "firmwareVersion" : "1.0",
+        "softwareVersion": "1.0",
+        "customIdentifier": "ibnhouse_ac_bedroom"
+    },
+    "displayCategories": [ "AIR_CONDITIONER", "THERMOSTAT", "TEMPERATURE_SENSOR", "FAN" ],
+    "capabilities": [
+        {
+            "type": "AlexaInterface", "interface": "Alexa", "version": "3"
+        },
+        {
+            "type": "AlexaInterface", "interface": "Alexa.EndpointHealth", "version": "3.1",
+            "properties": {
+                "supported": [ { "name": "connectivity" } ],
+                "retrievable": true, "proactivelyReported": false
+            }
+        },
+        {
+            "type": "AlexaInterface", "interface": "Alexa.PowerController", "version": "3",
+            "properties": {
+                "supported": [{ "name": "powerState" }],
+                "proactivelyReported": false,
+                "retrievable": true
+            }
+        },				
+        {
+            "type": "AlexaInterface", "interface": "Alexa.ThermostatController", "version": "3.2",
+            "properties": {
+                "supported": [
+                    { "name": "targetSetpoint" },
+                    { "name": "thermostatMode" }
+                ],
+                "retrievable": true, "proactivelyReported": false
+            },
+            "configuration": {
+                "supportedModes": [ "HEAT", "COOL", "AUTO", "OFF" ],
+                "supportsScheduling": false
+            }
+        },
+        {
+            "type": "AlexaInterface", "interface": "Alexa.RangeController", "instance": "Fan.Speed", "version": "3",
+            "properties": {
+            "supported": [ { "name": "rangeValue" } ],
+            "proactivelyReported": false,
+            "retrievable": true,
+            "nonControllable": false
+          },
+          "capabilityResources": {
+            "friendlyNames": [ { "@type": "asset", "value": { "assetId": "Alexa.Setting.FanSpeed" } } ]
+          },
+          "configuration": {
+            "supportedRange": { "minimumValue": 0, "maximumValue": 5, "precision": 1 },
+            "presets": [
+              {
+                "rangeValue": 5,
+                "presetResources": {
+                  "friendlyNames": [
+                    { "@type": "asset", "value": { "assetId": "Alexa.Value.Maximum" } },
+                    { "@type": "asset", "value": { "assetId": "Alexa.Value.High" } },
+                    { "@type": "text", "value": { "text": "Highest", "locale": "en-US" } },
+                    { "@type": "text", "value": { "text": "Fast", "locale": "en-US" } }
+                  ]
+                }
+              },
+              {
+                "rangeValue": 1,
+                "presetResources": {
+                  "friendlyNames": [
+                    { "@type": "asset", "value": { "assetId": "Alexa.Value.Minimum" } },
+                    { "@type": "asset", "value": { "assetId": "Alexa.Value.Low" } },
+                    { "@type": "text", "value": { "text": "Lowest", "locale": "en-US" } },
+                    { "@type": "text", "value": { "text": "Slow", "locale": "en-US" } }
+                  ]
+                }
+              },
+              {
+                "rangeValue": 0,
+                "presetResources": {
+                  "friendlyNames": [
+                    { "@type": "asset", "value": { "assetId": "Alexa.Value.Auto" } },
+                    { "@type": "text", "value": { "text": "Auto", "locale": "en-US" } }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+        
+    ],
+    "rules": [
+        {
+            "alexa": { "interface": "Alexa.EndpointHealth", "propertyName": "connectivity" },
+            "mqtt": { "state": "ibnhouse/ac/bedroom/status" },
+            "valueMapsToAlexa": [
+                { "type": "regex", "search": "^online$", "replace": "{\"value\":\"OK\"}" },
+                { "type": "regex", "search": "^offline$", "replace": "{\"value\":\"UNREACHABLE\",\"reason\":\"UNKNOWN\"}" }
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.PowerController", "directiveName": "TurnOn" },
+            "mqtt": { "commands": "ibnhouse/ac/bedroom/cmd" },
+            "valueMapsToMqtt": [ 
+                { "type": "static", "value": "power_on" } 
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.PowerController", "directiveName": "TurnOff" },
+            "mqtt": { "commands": "ibnhouse/ac/bedroom/cmd" },
+            "valueMapsToMqtt": [ 
+                { "type": "static", "value": "power_off" } 
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.PowerController", "propertyName": "powerState" },
+            "mqtt": { "state": "ibnhouse/ac/bedroom/state" },
+            "valueMapsToAlexa": [
+                { "type": "regex", "search": "^.*\"power\"\\s*:\\s*1.*$", "replace": "ON" },
+                { "type": "regex", "search": "^.*\"power\"\\s*:\\s*0.*$", "replace": "OFF" }
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.ThermostatController", "directiveName": "SetTargetTemperature", "payloadValue": "targetSetpoint" },
+            "mqtt": { "commands": "ibnhouse/ac/bedroom/cmd" },
+            "valueMapsToMqtt": [
+                { "type": "regex", "search": "^.*\\{\\s*\"value\"\\s*:\\s*([0-9]+)([.,][0-9]*)*\\s*,\\s*\"scale\"\\s*:\\s*\"CELSIUS\".*$", "replace": "temp_$1" },
+                { "type": "regex", "search": "^.*\\{\\s*\"scale\"\\s*:\\s*\"CELSIUS\"\\s*,\\s*\"value\"\\s*:\\s*([0-9]+)([.,][0-9]*)*.*$", "replace": "temp_$1" }
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.ThermostatController", "directiveName": "AdjustTargetTemperature", "payloadValue": "targetSetpointDelta" },
+            "mqtt": { "commands": "ibnhouse/ac/bedroom/cmd" },
+            "valueMapsToMqtt": [
+                { "type": "regex", "search": "^.*\\{\\s*\"value\"\\s*:\\s*-([0-9]+)([.,][0-9]*)*\\s*,\\s*\"scale\"\\s*:\\s*\"CELSIUS\".*$", "replace": "temp-$1" },
+                { "type": "regex", "search": "^.*\\{\\s*\"scale\"\\s*:\\s*\"CELSIUS\"\\s*,\\s*\"value\"\\s*:\\s*-([0-9]+)([.,][0-9]*)*.*$", "replace": "temp-$1" },
+                { "type": "regex", "search": "^.*\\{\\s*\"value\"\\s*:\\s*+?([0-9]+)([.,][0-9]*)*\\s*,\\s*\"scale\"\\s*:\\s*\"CELSIUS\".*$", "replace": "temp+$1" },
+                { "type": "regex", "search": "^.*\\{\\s*\"scale\"\\s*:\\s*\"CELSIUS\"\\s*,\\s*\"value\"\\s*:\\s*+?([0-9]+)([.,][0-9]*)*.*$", "replace": "temp+$1" }
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.ThermostatController", "propertyName": "targetSetpoint" },
+            "mqtt": { "state": "ibnhouse/ac/bedroom/state" },
+            "valueMapsToAlexa": [
+                { "type": "regex", "search": "^.*\"targetTemp\"\\s*:\\s*([0-9]+).*$", "replace": "{\"value\":$1.0,\"scale\":\"CELSIUS\"}" }
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.ThermostatController", "directiveName": "SetThermostatMode", "payloadValue": "thermostatMode" },
+            "mqtt": { "commands": "ibnhouse/ac/bedroom/cmd" },
+            "valueMapsToMqtt": [
+                { "type": "regex", "search": "^.*\\{\\s*\"value\"\\s*:\\s*\"COOL\".*$", "replace": "mode_cool" },
+                { "type": "regex", "search": "^.*\\{\\s*\"value\"\\s*:\\s*\"HEAT\".*$", "replace": "mode_heat" },
+                { "type": "regex", "search": "^.*\\{\\s*\"value\"\\s*:\\s*\"AUTO\".*$", "replace": "mode_auto" },
+                { "type": "regex", "search": "^.*\\{\\s*\"value\"\\s*:\\s*\"OFF\".*$", "replace": "power_off" }
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.ThermostatController", "propertyName": "thermostatMode" },
+            "mqtt": { "state": "ibnhouse/ac/bedroom/state" },
+            "valueMapsToAlexa": [
+                { "type": "regex", "search": "^.*\"power\"\\s*:\\s*0.*$", "replace": "OFF" },
+                { "type": "regex", "search": "^.*\"mode\"\\s*:\\s*\"cool\".*$", "replace": "COOL" },
+                { "type": "regex", "search": "^.*\"mode\"\\s*:\\s*\"heat\".*$", "replace": "HEAT" },
+                { "type": "regex", "search": "^.*\"mode\"\\s*:\\s*\"auto\".*$", "replace": "AUTO" }
+            ]
+        },
+        {
+            "alexa": { "interface": "Alexa.TemperatureSensor", "propertyName": "temperature" },
+            "mqtt": { "state": "ibnhouse/ac/bedroom/state" },
+            "valueMapsToAlexa": [
+                { "type": "regex", "search": "^.*\"currentTemp\"\\s*:\\s*([0-9]+).*$", "replace": "{\"value\":$1.0,\"scale\":\"CELSIUS\"}" }
+            ]
+        }
+        
+    ]
+}

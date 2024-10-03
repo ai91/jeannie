@@ -1,0 +1,198 @@
+{
+    "id": "ibnhouse_ac_bedroom",
+    "name": "Кондиционер в спальне",
+    "description": "Кондиционер в спальне",
+    "room": "спальня",
+    "device_info": {
+        "manufacturer": "IBN",
+        "model": "Jeanie",
+        "hw_version": "1.0",
+        "sw_version": "1.0"
+    },
+    "type": "devices.types.thermostat.ac",
+    "capabilities": [
+        {
+            "type": "devices.capabilities.on_off",
+            "retrievable": true,
+            "reportable": true,
+            "parameters": {
+                "split": true
+            },
+            "rules": [
+                {
+                    "alisa": { "instance": "on" },
+                    "mqtt": { "state": "ibnhouse/ac/bedroom/state", "commands": "ibnhouse/ac/bedroom/cmd" },
+                    "valueMapsToAlisa": [
+                        { "type": "regex", "search": "^.*\"power\":\\s*1.*$", "replace": "true" },
+                        { "type": "regex", "search": "^.*\"power\":\\s*0.*$", "replace": "false" }
+                    ],
+                    "valueMapsToMqtt": [ 
+                        { "type": "value", "from": "true", "to": "power_on" },
+                        { "type": "value", "from": "false", "to": "power_off" }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "devices.capabilities.range",
+            "retrievable": true,
+            "reportable": true,
+            "parameters": {
+                "instance": "temperature",
+                "random_access": true,
+                "range": {
+                    "max": 33,
+                    "min": 16,
+                    "precision": 1
+                },
+                "unit": "unit.temperature.celsius"
+            },
+            "rules": [
+                {
+                    "alisa": { "instance": "temperature" },
+                    "mqtt": { "state": "ibnhouse/ac/bedroom/state", "commands": "ibnhouse/ac/bedroom/cmd" },
+                    "valueMapsToAlisa": [
+                        { "type": "regex", "search": "^.*\"targetTemp\":\\s*([0-9]+).*$", "replace": "$1" }
+                    ],
+                    "valueMapsToMqtt": [ 
+                        { "type": "regex", "search": "([0-9]+)", "replace": "temp_$1" }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "devices.capabilities.mode",
+            "retrievable": true,
+            "reportable": true,
+            "parameters": {
+                "instance": "fan_speed",
+                "modes": [
+                    {"value": "turbo"},
+                    {"value": "high"},
+                    {"value": "medium"},
+                    {"value": "low"},
+                    {"value": "quiet"},
+                    {"value": "auto"}
+                ]
+            },
+            "rules": [
+                {
+                    "alisa": { "instance": "fan_speed" },
+                    "mqtt": { "state": "ibnhouse/ac/bedroom/state", "commands": "ibnhouse/ac/bedroom/cmd" },
+                    "valueMapsToAlisa": [
+                        { "type": "regex", "search": "^.*\"speed\":\\s*0.*$", "replace": "auto" },
+                        { "type": "regex", "search": "^.*\"speed\":\\s*1.*$", "replace": "quiet" },
+                        { "type": "regex", "search": "^.*\"speed\":\\s*2.*$", "replace": "low" },
+                        { "type": "regex", "search": "^.*\"speed\":\\s*3.*$", "replace": "medium" },
+                        { "type": "regex", "search": "^.*\"speed\":\\s*4.*$", "replace": "high" },
+                        { "type": "regex", "search": "^.*\"speed\":\\s*5.*$", "replace": "turbo" }
+                    ],
+                    "valueMapsToMqtt": [ 
+                        { "type": "regex", "search": "auto", "replace": "speed_auto" },
+                        { "type": "regex", "search": "quiet", "replace": "speed_1" },
+                        { "type": "regex", "search": "low", "replace": "speed_2" },
+                        { "type": "regex", "search": "medium", "replace": "speed_3" },
+                        { "type": "regex", "search": "high", "replace": "speed_4" },
+                        { "type": "regex", "search": "turbo", "replace": "speed_5" }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "devices.capabilities.mode",
+            "retrievable": true,
+            "reportable": true,
+            "parameters": {
+                "instance": "thermostat",
+                "modes": [
+                    {"value": "fan_only"},
+                    {"value": "heat"},
+                    {"value": "cool"},
+                    {"value": "dry"},
+                    {"value": "auto"}
+                ]
+            },
+            "rules": [
+                {
+                    "alisa": { "instance": "thermostat" },
+                    "mqtt": { "state": "ibnhouse/ac/bedroom/state", "commands": "ibnhouse/ac/bedroom/cmd" },
+                    "valueMapsToAlisa": [
+                        { "type": "regex", "search": "^.*\"mode\":\\s*\"fan\".*$", "replace": "fan_only" },
+                        { "type": "regex", "search": "^.*\"mode\":\\s*\"heat\".*$", "replace": "heat" },
+                        { "type": "regex", "search": "^.*\"mode\":\\s*\"cool\".*$", "replace": "cool" },
+                        { "type": "regex", "search": "^.*\"mode\":\\s*\"dry\".*$", "replace": "dry" },
+                        { "type": "regex", "search": "^.*\"mode\":\\s*\"auto\".*$", "replace": "auto" }
+                    ],
+                    "valueMapsToMqtt": [ 
+                        { "type": "regex", "search": "fan_only", "replace": "mode_fan" },
+                        { "type": "regex", "search": "heat", "replace": "mode_heat" },
+                        { "type": "regex", "search": "cool", "replace": "mode_cool" },
+                        { "type": "regex", "search": "dry", "replace": "mode_dry" },
+                        { "type": "regex", "search": "auto", "replace": "mode_auto" }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "devices.capabilities.toggle",
+            "retrievable": true,
+            "reportable": true,
+            "parameters": {
+                "instance": "oscillation"
+            },
+            "rules": [
+                {
+                    "alisa": { "instance": "oscillation" },
+                    "mqtt": { "state": "ibnhouse/ac/bedroom/state", "commands": "ibnhouse/ac/bedroom/cmd" },
+                    "valueMapsToAlisa": [
+                        { "type": "regex", "search": "^.*\"swing\":\\s*1.*$", "replace": "true" },
+                        { "type": "regex", "search": "^.*\"swing\":\\s*0.*$", "replace": "false" }
+                    ],
+                    "valueMapsToMqtt": [ 
+                        { "type": "regex", "search": "true", "replace": "swing_on" },
+                        { "type": "regex", "search": "false", "replace": "swing_off" }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "devices.capabilities.toggle",
+            "retrievable": true,
+            "reportable": true,
+            "parameters": {
+                "instance": "mute"
+            },
+            "rules": [
+                {
+                    "alisa": { "instance": "mute" },
+                    "mqtt": { "state": "ibnhouse/ac/bedroom/state", "commands": "ibnhouse/ac/bedroom/cmd" },
+                    "valueMapsToAlisa": [
+                        { "type": "regex", "search": "^.*\"mute\":\\s*1.*$", "replace": "true" },
+                        { "type": "regex", "search": "^.*\"mute\":\\s*0.*$", "replace": "false" }
+                    ],
+                    "valueMapsToMqtt": [ 
+                        { "type": "regex", "search": "true", "replace": "mute_on" },
+                        { "type": "regex", "search": "false", "replace": "mute_off" }
+                    ]
+                }
+            ]
+        }
+    ],
+    "properties": [{
+        "type": "devices.properties.float",
+        "retrievable": true,
+        "parameters": {
+            "instance": "temperature",
+            "unit": "unit.temperature.celsius"
+        },
+        "rules": [
+            {
+                "alisa": { "instance": "temperature" },
+                "mqtt": { "state": "ibnhouse/ac/bedroom/state" },
+                "valueMapsToAlisa": [
+                    { "type": "regex", "search": "^.*\"currentTemp\":\\s*([0-9]+).*$", "replace": "$1" }
+                ]
+            }
+        ]
+    }]
+}
