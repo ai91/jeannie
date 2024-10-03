@@ -54,20 +54,24 @@ Power control
 - `power_on`
 - `power_off`
 
-Mode
+Mode. 
 - `mode_cool`
 - `mode_heat`
 - `mode_dry`
 - `mode_fan`
 - `mode_auto`
 
-Speed control
+*Note: if AC is turned off, when mode change command arrives, the AC is automatically turned on by this firmware.*
+
+Speed control. 
 - `speed_auto`
 - `speed_1`
 - `speed_2`
 - `speed_3`
 - `speed_4`
 - `speed_5`
+
+*Note: if AC is turned off, when mode change command arrives, the AC is automatically turned on by this firmware.*
 
 Temperature settings
 - `temp_XX` - set temperature to `XX` degrees. Example `temp_22`.
@@ -113,9 +117,4 @@ Not really part of the module or firmware, but here are configuration examples f
 - Config example for [AlisaSmartHome.MQTT.bridge](https://github.com/ai91/AlisaSmartHome.MQTT.bridge): [alisasmarthome.mqtt.bridge.config.json](doc/alisasmarthome.mqtt.bridge.config.json)
 - Config example for [AlexSmartHome.MQTT.bridge](https://github.com/ai91/AlexaSmartHome.MQTT.bridge): [alexasmarthome.mqtt.bridge.config.json](doc/alexasmarthome.mqtt.bridge.config.json)
 
-<iframe width="315" height="560"
-src="https://youtube.com/shorts/p6C_MBKraxY<Shorts_video_code>"
-title="YouTube video player"
-frameborder="0"
-allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-allowfullscreen></iframe>
+[![Watch the video](https://img.youtube.com/vi/p6C_MBKraxY/maxresdefault.jpg)](https://youtu.be/p6C_MBKraxY)
