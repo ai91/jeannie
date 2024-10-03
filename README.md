@@ -1,4 +1,4 @@
-# jeannie
+# Jeannie
 Arduino sketch for [ESP12F-based module](https://github.com/Vittaly76/Hisense-to-MQTT) to enable communication with Hisense AC via [MQTT protocol](https://en.wikipedia.org/wiki/MQTT).
 
 This is an alternative firmware for the original module by [Vittaly76](https://github.com/Vittaly76).
@@ -105,15 +105,15 @@ Mute internal AC beeper
 - `mute_on` - activate silent mode. No beep feedback on incoming commands.
 - `mute_off` - deactivate silent mode.
 
-Celcius/Farenheit mode
+Celcius/Fahrenheit mode
 - `celsius_on`
 - `celsius_off`
 
 # Arduino settings
 ![Arduino Settings](doc/ArduinoIDE.png "Arduino Settings")
 
-# MQTT bridges integration
-Not really part of the module or firmware, but here are configuration examples for my MQTT smart home bridges:
+# Smarthome MQTT bridges integration
+Not really part of the module or firmware, but here are configuration examples for my smarthome MQTT bridges:
 - Config example for [AlisaSmartHome.MQTT.bridge](https://github.com/ai91/AlisaSmartHome.MQTT.bridge): [alisasmarthome.mqtt.bridge.config.json](doc/alisasmarthome.mqtt.bridge.config.json)
 - Config example for [AlexSmartHome.MQTT.bridge](https://github.com/ai91/AlexaSmartHome.MQTT.bridge): [alexasmarthome.mqtt.bridge.config.json](doc/alexasmarthome.mqtt.bridge.config.json)
 
