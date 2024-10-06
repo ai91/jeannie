@@ -101,6 +101,10 @@ IPAddress mqttServerIp = INADDR_NONE;
 #define CMD_TEMP_DOWNPREFIX "temp-"
 #define CMD_SWING_ON "swing_on"
 #define CMD_SWING_OFF "swing_off"
+#define CMD_SWING_H_ON "swing_h_on"
+#define CMD_SWING_H_OFF "swing_h_off"
+#define CMD_SWING_V_ON "swing_v_on"
+#define CMD_SWING_V_OFF "swing_v_off"
 #define CMD_ENERGYSAVE_ON "evergysave_on"
 #define CMD_ENERGYSAVE_OFF "evergysave_off"
 #define CMD_BOOST_ON "boost_on"
@@ -140,7 +144,8 @@ int ledState = LOW;
 // current state
 bool stateMuted = false;
 byte statePower = 0;
-byte stateSwing = 0;
+byte stateSwingH = 0;
+byte stateSwingV = 0;
 byte stateTargetTemp = 0;
 byte stateCurrentTemp = 0;
 byte statePipeTemp = 0;
@@ -509,7 +514,19 @@ void cmdModeAuto() {
 }
 
 void cmdSwing(bool enable) {
-  sendCommand(enable ? 0xC0 : 0x40, 0x20, false);
+  sendCommand(enable ? 0xF0 : 0x50, 0x20, false);
+}
+
+void cmdSwingH(bool enable) {
+  byte swingH = enable ? 0x30 : 0x10;
+  byte swingV = stateSwingV ? 0xC0 : 0x40;
+  sendCommand(swingH | swingV, 0x20, false);
+}
+
+void cmdSwingV(bool enable) {
+  byte swingH = stateSwingH ? 0x30 : 0x10;
+  byte swingV = enable ? 0xC0 : 0x40;
+  sendCommand(swingH | swingV, 0x20, false);
 }
 
 void cmdEnergySaving(bool enable) {
@@ -602,8 +619,14 @@ uint16_t calculateChecksum(uint8_t* data, size_t length) {
   return checksum;
 }
 
-byte getSwing(byte* data) {
-  byte swing = (data[0x12] >> 1) & 0x1;
+byte getSwingV(byte* data) {
+//  byte swing = (data[0x12] >> 1) & 0x1;
+  byte swing = (data[0x23] >> 7) & 0x1;
+  return swing;
+}
+
+byte getSwingH(byte* data) {
+  byte swing = (data[0x23] >> 6) & 0x1;
   return swing;
 }
 
@@ -689,7 +712,8 @@ void readState(bool forceSend) {
       receivedCheckSum = (buffer[count-4] << 8) | buffer[count-3];
       if (calculatedCheckSum == receivedCheckSum) {
         statePower = getPower(buffer);
-        stateSwing = getSwing(buffer);
+        stateSwingV = getSwingV(buffer);
+        stateSwingH = getSwingH(buffer);
         stateMode = getMode(buffer);
         stateTargetTemp = getTargetTemp(buffer);
         stateCurrentTemp = getCurrentTemp(buffer);
@@ -697,12 +721,13 @@ void readState(bool forceSend) {
         stateSettingsCelcius = getSettingsCelcius(buffer);
         stateSpeed = getSpeed(buffer);
 
-        long stateHash = statePower ^ (stateSwing << 1) ^ (stateSettingsCelcius << 2) ^ (stateMuted << 3) ^ (stateMode << 4) ^ (stateTargetTemp << 12) ^ (stateSpeed << 20);
+        long stateHash = statePower ^ (stateSwingH << 1) ^ (stateSwingV << 2) ^ (stateSettingsCelcius << 3) ^ (stateMuted << 4) ^ (stateMode << 5) ^ (stateTargetTemp << 12) ^ (stateSpeed << 20);
         if ((stateHash != lastStateHash) || forceSend) {
           lastStateHash = stateHash;
           JsonDocument json;
           json["power"] = statePower;
-          json["swing"] = stateSwing;
+          json["swing_v"] = stateSwingV;
+          json["swing_h"] = stateSwingH;
           json["mode"] = getModeStr(stateMode);
           json["targetTemp"] = stateTargetTemp;
           json["currentTemp"] = stateCurrentTemp;
@@ -830,6 +855,14 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
       cmdSwing(true);
     } else if (cmd.startsWith(CMD_SWING_OFF)) {
       cmdSwing(false);
+    } else if (cmd.startsWith(CMD_SWING_H_ON)) {
+      cmdSwingH(true);
+    } else if (cmd.startsWith(CMD_SWING_H_OFF)) {
+      cmdSwingH(false);
+    } else if (cmd.startsWith(CMD_SWING_V_ON)) {
+      cmdSwingV(true);
+    } else if (cmd.startsWith(CMD_SWING_V_OFF)) {
+      cmdSwingV(false);
     } else if (cmd.startsWith(CMD_ENERGYSAVE_ON)) {
       cmdEnergySaving(true);
     } else if (cmd.startsWith(CMD_ENERGYSAVE_OFF)) {

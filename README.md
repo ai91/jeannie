@@ -24,7 +24,8 @@ Once correctly configured, the MQTT `status` topic should obtain `online` messag
 ```json
 {
   "power": 0,
-  "swing": 0,
+  "swing_h": 0,
+  "swing_v": 0,
   "mode": "cool",
   "targetTemp": 20,
   "currentTemp": 23,
@@ -79,8 +80,12 @@ Temperature settings
 - `temp-XX` - adjust temperature to `-XX` degrees. Example `temp-2`.
 
 Swing control
-- `swing_on`
-- `swing_off`
+- `swing_v_on` - enable vertical swing
+- `swing_v_off` - disable vertical swing
+- `swing_h_on` - enable vertical swing
+- `swing_h_off` - disable vertical swing
+- `swing_on` - enable swing on both axes
+- `swing_off` - disable swing on both axes
 
 Evergy save mode
 - `evergysave_on`
