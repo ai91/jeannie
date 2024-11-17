@@ -211,7 +211,7 @@ void setLedsMode(int mode){
         ledsTicker.detach();
         break;
       case LED_MODE_START:
-        //digitalWrite(LED_BUILTIN, LOW);
+        digitalWrite(LED_BUILTIN, LOW);
         digitalWrite(LED, LOW);
         ledsTicker.detach();
         break;
@@ -225,7 +225,7 @@ void setLedsMode(int mode){
         ledsTicker.attach_ms(3000, ledsTick);
         break;
       case LED_MODE_WORK:
-        //digitalWrite(LED_BUILTIN, HIGH);
+        digitalWrite(LED_BUILTIN, HIGH);
         digitalWrite(LED, HIGH);
         ledsTicker.detach();
         break;
@@ -911,6 +911,7 @@ boolean mqttReconnect() {
       mqttConnectAttempt = millis();
       if (mqttClient.connect(mqttClientName, mqttUser, mqttPassword, mqttTopicStatus, 1, true, "offline")) {
         DEBUG_PRINTLN("connected");
+        setLedsMode(LED_MODE_WORK);
         mqttClient.publish(mqttTopicStatus, "online", true);
         // Once connected resubscribe
         mqttClient.subscribe(mqttTopicCmd);
